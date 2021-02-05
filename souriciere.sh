@@ -36,7 +36,7 @@ mot_de_passe
 #Un problème avec la république de Corée.
 while read ligne; do
 	IP_LOCALISATION=ip_localisation.${DATE_DU_JOUR}
-	LOCALISATION=$(geoiplookup "${ligne}" |awk -F',' '{print $NF}')
+	LOCALISATION=$(geoiplookup "${ligne}" |awk -F',' '{gsub(" ","_");print $NF}'| sed 's/_//')
 	printf "%s:%s\n" "${ligne}" "${LOCALISATION}" >> ${IP_LOCALISATION}
 done < ip.${DATE_DU_JOUR}
 
@@ -46,3 +46,9 @@ cut -d':'  -f2 ip_localisation.${DATE_DU_JOUR} | sort -u >> ip_localisation_uniq
 while read ligne; do
 	printf "%s %s\n" "${ligne}" $(grep -Fc -- "${ligne}" ip_localisation.${DATE_DU_JOUR}) >> ip_fin.${DATE_DU_JOUR}
 done < ip_localisation_uniq.${DATE_DU_JOUR}
+
+sort -nk2 util_fin.${DATE_DU_JOUR} | tail -10 > util_fin_tri.${DATE_DU_JOUR}
+sort -nk2 mdp_fin.${DATE_DU_JOUR} | tail -10 > mdp_fin_tri.${DATE_DU_JOUR}
+sort -nk2 ip_fin.${DATE_DU_JOUR} | tail -10 > ip_fin_tri.${DATE_DU_JOUR}
+
+
