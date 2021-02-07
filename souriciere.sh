@@ -14,12 +14,13 @@ awk '/^host/ {sub("[[:cntrl:]]","");print $11}' passwords | sed '/^$/d' > mdp.${
 awk '/^host/ {sub("[[:cntrl:]]","");print $7}' passwords > util.${DATE_DU_JOUR}
 awk '/^host/ {sub("[[:cntrl:]]","");print $3}' passwords > ip.${DATE_DU_JOUR}
 
+utilisateur() {
 #crée un fichier avec grep -Fxc -- et un sans. puis faire un diff pour voir s'il y a des différences.
 sort -u util.${DATE_DU_JOUR} > util_uniq.${DATE_DU_JOUR}
 while read ligne_util; do
 	printf "%s %s\n" "${ligne_util}" $(grep -Fxc -- "${ligne_util}" util.${DATE_DU_JOUR}) >> util_fin.${DATE_DU_JOUR} 
 done < util_uniq.${DATE_DU_JOUR}
-
+}
 
 
 mot_de_passe() {
@@ -30,6 +31,7 @@ while read ligne; do
 done < mdp_uniq.${DATE_DU_JOUR}
 }
 
+utilisateur
 mot_de_passe
 
 #Mettre la variable LOCALISATION entre guillemet sinon les lieux composé sont découpés sur plusieurs lignes
