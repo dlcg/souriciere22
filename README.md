@@ -1,1 +1,1 @@
-Traite les informations récupéré par la souricière 
+Traite les informations récupérées par la souricière 
