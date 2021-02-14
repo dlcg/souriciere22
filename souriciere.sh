@@ -21,6 +21,9 @@ sort -u util.${DATE_DU_JOUR} > util_uniq.${DATE_DU_JOUR}
 while read ligne_util; do
 	printf "%s %s\n" "${ligne_util}" $(grep -Fxc -- "${ligne_util}" util.${DATE_DU_JOUR}) >> util_fin.${DATE_DU_JOUR} 
 done < util_uniq.${DATE_DU_JOUR}
+
+
+sort -nk2 util_fin.${DATE_DU_JOUR} | tail -10 > util_fin_tri.${DATE_DU_JOUR}
 }
 
 
@@ -30,6 +33,9 @@ sort -u mdp.${DATE_DU_JOUR} > mdp_uniq.${DATE_DU_JOUR}
 while read ligne; do
 	printf "%s %s\n" "${ligne}" $(grep -Fxc -- "${ligne}" mdp.${DATE_DU_JOUR}) >> mdp_fin.${DATE_DU_JOUR}
 done < mdp_uniq.${DATE_DU_JOUR}
+
+
+sort -nk2 mdp_fin.${DATE_DU_JOUR} | tail -10 > mdp_fin_tri.${DATE_DU_JOUR}
 }
 
 
@@ -48,19 +54,25 @@ cut -d':'  -f2 ip_localisation.${DATE_DU_JOUR} | sort -u >> ip_localisation_uniq
 while read ligne; do
 	printf "%s %s\n" "${ligne}" $(grep -Fc -- "${ligne}" ip_localisation.${DATE_DU_JOUR}) >> ip_fin.${DATE_DU_JOUR}
 done < ip_localisation_uniq.${DATE_DU_JOUR}
+
+
+sort -nk2 ip_fin.${DATE_DU_JOUR} | tail -10 > ip_fin_tri.${DATE_DU_JOUR}
 }
 
-premiere_extraction
 
-utilisateur
+if [ $# -eq 0 ]; then
+	premiere_extraction
 
-mot_de_passe
+	utilisateur
 
-ip_localisation
+	mot_de_passe
+
+	ip_localisation
+else
+	printf "Ne prend pas d'argument"
+	exit 1
+fi
 
 
-sort -nk2 util_fin.${DATE_DU_JOUR} | tail -10 > util_fin_tri.${DATE_DU_JOUR}
-sort -nk2 mdp_fin.${DATE_DU_JOUR} | tail -10 > mdp_fin_tri.${DATE_DU_JOUR}
-sort -nk2 ip_fin.${DATE_DU_JOUR} | tail -10 > ip_fin_tri.${DATE_DU_JOUR}
 
 
