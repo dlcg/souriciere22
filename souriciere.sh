@@ -5,7 +5,6 @@
 
 rm ip.txt ip mdp1.*
 DATE_DU_JOUR=$(date +"%y%m%d")
-FICHIER_DU_JOUR=passwords.${DATE_DU_JOUR}
 
 premiere_extraction() {
 #Retire les caractères de contrôle.
@@ -42,9 +41,10 @@ sort -nk2 mdp_fin.${DATE_DU_JOUR} | tail -10 > mdp_fin_tri.${DATE_DU_JOUR}
 ip_localisation() {
 #Mettre la variable LOCALISATION entre guillemet sinon les lieux composé sont découpés sur plusieurs lignes
 #Un problème avec la république de Corée.
+declare -A CountryArray=( [United_States]=USA [United_Kingdom]=UK [Russian_Federation]=Russia [Lao_People\'s_Democratic_Republic]=Laos [Korea,_Republic_of]=South_Korea )
 while read ligne; do
 	IP_LOCALISATION=ip_localisation.${DATE_DU_JOUR}
-	LOCALISATION=$(geoiplookup "${ligne}" |awk -F',' '{gsub(" ","_");print $NF}'| sed 's/_//')
+	LOCALISATION=$(geoiplookup "${ligne}" |cut -d',' -f2-| sed 's/^.//; s/\s/_/g')
 	printf "%s:%s\n" "${ligne}" "${LOCALISATION}" >> ${IP_LOCALISATION}
 done < ip.${DATE_DU_JOUR}
 
@@ -59,6 +59,9 @@ done < ip_localisation_uniq.${DATE_DU_JOUR}
 sort -nk2 ip_fin.${DATE_DU_JOUR} | tail -10 > ip_fin_tri.${DATE_DU_JOUR}
 }
 
+replace() {
+echo "test"
+}
 
 if [ $# -eq 0 ]; then
 	premiere_extraction
