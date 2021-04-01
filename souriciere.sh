@@ -3,8 +3,18 @@
 #Extrait les identifiants des IBN récoltés par la souricière.
 #Attention les bonnes pratiques en développement sont de ne jamais travailler directement sur le file system (fichier à plat dans notre exemple). Passez par une base de données.
 
-rm ip.txt ip mdp1.*
+
 DATE_DU_JOUR=$(date +"%y%m%d")
+rm *.${DATE_DU_JOUR}
+
+#declare -A CountryArray=( [United_States]=USA [United_Kingdom]=UK [Russian_Federation]=Russia [Lao_People\'s_Democratic_Republic]=Laos [Korea,_Republic_of]=South_Korea )
+
+declare -A CountryArray
+CountryArray[United_States]=USA 
+CountryArray[United_Kingdom]=UK 
+CountryArray[Russian_Federation]=Russia
+CountryArray[Lao_People\'s_Democratic_Republic]=Laos 
+CountryArray[Korea,_Republic_of]=South_Korea
 
 premiere_extraction() {
 #Retire les caractères de contrôle.
@@ -41,7 +51,6 @@ sort -nk2 mdp_fin.${DATE_DU_JOUR} | tail -10 > mdp_fin_tri.${DATE_DU_JOUR}
 ip_localisation() {
 #Mettre la variable LOCALISATION entre guillemet sinon les lieux composé sont découpés sur plusieurs lignes
 #Un problème avec la république de Corée.
-declare -A CountryArray=( [United_States]=USA [United_Kingdom]=UK [Russian_Federation]=Russia [Lao_People\'s_Democratic_Republic]=Laos [Korea,_Republic_of]=South_Korea )
 while read ligne; do
 	IP_LOCALISATION=ip_localisation.${DATE_DU_JOUR}
 	LOCALISATION=$(geoiplookup "${ligne}" |cut -d',' -f2-| sed 's/^.//; s/\s/_/g')
@@ -60,8 +69,14 @@ sort -nk2 ip_fin.${DATE_DU_JOUR} | tail -10 > ip_fin_tri.${DATE_DU_JOUR}
 }
 
 replace() {
-echo "test"
+while read line; do 
+	for i in "${!CountryArray[@]}"; do 
+		line="${line//"$i"/"${CountryArray["$i"]}"}" 
+	done
+	echo ${line} >> localisation_fin_tri.${DATE_DU_JOUR}
+done < ip_fin_tri.${DATE_DU_JOUR}
 }
+
 
 if [ $# -eq 0 ]; then
 	premiere_extraction
@@ -71,6 +86,8 @@ if [ $# -eq 0 ]; then
 	mot_de_passe
 
 	ip_localisation
+	
+	replace
 else
 	printf "Ne prend pas d'argument"
 	exit 1
