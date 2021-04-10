@@ -18,14 +18,15 @@ CountryArray[Lao_People\'s_Democratic_Republic]=Laos
 CountryArray[Korea,_Republic_of]=South_Korea
 
 premiere_extraction() {
-cp /var/log/passwords /var/log/souriciere/passwords.${DATE_DU_JOUR}
-if [ $? -ne 0 ]; then
-	printf "Error with passwords file"
+if (cp /var/log/passwords /var/log/souriciere/passwords.${DATE_DU_JOUR}); then
+	#Retire les caractères de contrôle.
+	awk '/^host/ {sub("[[:cntrl:]]","");print $11}' /var/log/souriciere/passwords.${DATE_DU_JOUR} | sed '/^$/d' > mdp.${DATE_DU_JOUR}
+	awk '/^host/ {sub("[[:cntrl:]]","");print $7}'  /var/log/souriciere/passwords.${DATE_DU_JOUR}  > util.${DATE_DU_JOUR}
+	awk '/^host/ {sub("[[:cntrl:]]","");print $3}'  /var/log/souriciere/passwords.${DATE_DU_JOUR}  > ip.${DATE_DU_JOUR}
 else
-#Retire les caractères de contrôle.
-awk '/^host/ {sub("[[:cntrl:]]","");print $11}' /var/log/souriciere/passwords.${DATE_DU_JOUR} | sed '/^$/d' > mdp.${DATE_DU_JOUR}
-awk '/^host/ {sub("[[:cntrl:]]","");print $7}'  /var/log/souriciere/passwords.${DATE_DU_JOUR}  > util.${DATE_DU_JOUR}
-awk '/^host/ {sub("[[:cntrl:]]","");print $3}'  /var/log/souriciere/passwords.${DATE_DU_JOUR}  > ip.${DATE_DU_JOUR}
+
+	printf "Error with passwords file"
+	exit 1
 fi
 }
 
