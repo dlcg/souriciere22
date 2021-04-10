@@ -3,9 +3,10 @@
 #Extrait les identifiants des IBN récoltés par la souricière.
 #Attention les bonnes pratiques en développement sont de ne jamais travailler directement sur le file system (fichier à plat dans notre exemple). Passez par une base de données.
 
+#You will need to install GeoIP package 
+#Yum install GeoIP 
 
 DATE_DU_JOUR=$(date +"%y%m%d")
-rm *.${DATE_DU_JOUR}
 
 #declare -A CountryArray=( [United_States]=USA [United_Kingdom]=UK [Russian_Federation]=Russia [Lao_People\'s_Democratic_Republic]=Laos [Korea,_Republic_of]=South_Korea )
 
@@ -17,10 +18,15 @@ CountryArray[Lao_People\'s_Democratic_Republic]=Laos
 CountryArray[Korea,_Republic_of]=South_Korea
 
 premiere_extraction() {
+cp /var/log/passwords /var/log/souriciere/passwords.${DATE_DU_JOUR}
+if [ $? -ne 0 ]; then
+	printf "Error with passwords file"
+else
 #Retire les caractères de contrôle.
-awk '/^host/ {sub("[[:cntrl:]]","");print $11}' passwords | sed '/^$/d' > mdp.${DATE_DU_JOUR}
-awk '/^host/ {sub("[[:cntrl:]]","");print $7}' passwords > util.${DATE_DU_JOUR}
-awk '/^host/ {sub("[[:cntrl:]]","");print $3}' passwords > ip.${DATE_DU_JOUR}
+awk '/^host/ {sub("[[:cntrl:]]","");print $11}' /var/log/souriciere/passwords.${DATE_DU_JOUR} | sed '/^$/d' > mdp.${DATE_DU_JOUR}
+awk '/^host/ {sub("[[:cntrl:]]","");print $7}'  /var/log/souriciere/passwords.${DATE_DU_JOUR}  > util.${DATE_DU_JOUR}
+awk '/^host/ {sub("[[:cntrl:]]","");print $3}'  /var/log/souriciere/passwords.${DATE_DU_JOUR}  > ip.${DATE_DU_JOUR}
+fi
 }
 
 
@@ -68,10 +74,11 @@ done < ip_localisation_uniq.${DATE_DU_JOUR}
 sort -nk2 ip_fin.${DATE_DU_JOUR} | tail -10 > ip_fin_tri.${DATE_DU_JOUR}
 }
 
+
 replace() {
 while read line; do 
 	for i in "${!CountryArray[@]}"; do 
-		line="${line//"$i"/"${CountryArray["$i"]}"}" 
+		line="${line//"$i"/${CountryArray["$i"]}}" 
 	done
 	echo ${line} >> localisation_fin_tri.${DATE_DU_JOUR}
 done < ip_fin_tri.${DATE_DU_JOUR}
@@ -92,7 +99,3 @@ else
 	printf "Ne prend pas d'argument"
 	exit 1
 fi
-
-
-
-
